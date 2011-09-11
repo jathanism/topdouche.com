@@ -88,6 +88,12 @@ def get_profiles_by_tag(request, tag=None):
 
     return JsonResponse(data)
 
+def get_profiles_by_rating(request):
+    profiles = sorted(Profile.objects.all(), key=lambda p: p.rating)
+    data = [object_to_dict(p) for p in profiles]
+
+    return JsonResponse(data)
+
 @require_POST
 def tag_profile(request, profile_id=None, url=None, tag=None):
     json_data = request.raw_post_data
