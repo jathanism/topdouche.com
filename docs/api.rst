@@ -2,32 +2,51 @@
 API
 ===
 
-POST /profile
-{"url"="http://about.me/williammwhite" | "http://facebook.com/wiliammwhite" | "http://twitter.com/opensolar"}
-Creates a new profile object, returns its ID
+Profiles
+========
 
-GET /profile/ID
-Returns the complete profile with comments and summarized rating
+POST /api/profile/add/
+{"url": "http://about.me/williammwhite"}
+Creates a new profile object, returns its 'id'.
 
-GET /profile/?url="http://about.me/williammwhite" | "http://facebook.com/wiliammwhite" | "http://twitter.com/opensolar"
-Returns the complete profile with comments and summarized rating
+POST /api/profile/tag/
+{"profile_id": 1, "tag": "bacon"}
+Adds a tag to the specified profile (either by 'profile_id' or by 'url'). Tag must exist first.
 
-POST /tag
-{"name":"sunglasses","description":"","url":""}
-I think providing for a description and reference URL could be useful.  "name" should be unique.
+GET /api/profile/{id}
+Returns the complete profile with comments and summarized rating.
 
-GET /tag/<name>
+GET /api/profile/?url="http://about.me/williammwhite" 
+Returns the complete profile with comments and summarized rating.
+
+GET /api/profiles/
+Returns a list of profiles sorted by douchescore (desc.).
+
+GET /api/profiles/?tag=comehither
+Returns profiles tagged with comehither.
+
+Tags
+====
+
+POST /api/tag/add/
+{"name": "sunglasses", "description": "", "reference_url": ""}
+'name' must be unique; 'description' and 'reference_url' are optional but could be useful. 
+
+GET /api/tag/{name}
 eg. http://topdouche.com/v1/tag/comehither
-Returns the average tag rating, tag rating count and all comments associated with this tag
+Returns the average tag rating, tag rating count and all comments associated with this tag.
 
-GET /profiles/?tag=comehither
-Returns profiles tagged with comehither
+GET /api/tags/
+Returns a list of tags sorted by rating (desc.)
 
-POST /rating/profile
-{"id":"PROFILE_ID", "value":2}
-OR
-{"url"="http://about.me/williammwhite" | "http://facebook.com/wiliammwhite" | "http://twitter.com/opensolar","value":2}
+Ratings
+=======
 
-POST /rating/tag
-{"name":"comehither", "value":2}
+POST /api/rating/profile/
+{"id": "PROFILE_ID", "value":2}
+Boosts the rating of the profile and returns the old and new scores.
+
+POST /api/rating/tag/
+{"name": "comehither", "value":2}
+Boosts the rating of the tag and returns the old and new scores.
 

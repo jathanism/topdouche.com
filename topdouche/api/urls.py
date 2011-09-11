@@ -13,6 +13,7 @@ urlpatterns = patterns('api.views',
     # Tag
     (r'^tag/add/$', 'create_tag'),
     (r'^tag/(?P<name>[^/]+)?$', 'get_tag'),
+    (r'^tags/$', 'get_tags_by_rating'),
 
     # Rating
     (r'^rating/profile/$', 'rate_profile'),

@@ -42,6 +42,10 @@ def object_to_dict(obj):
     fields = data[0]['fields']
     fields['id'] = data[0]['pk']
 
+    if hasattr(obj, 'douchescore'):
+        #print 'DOUCHE SCORE: %s ' % obj.douchescore
+        fields['douchescore'] = float(obj.douchescore)
+    
     return fields
 
 @require_POST
@@ -89,8 +93,15 @@ def get_profiles_by_tag(request, tag=None):
     return JsonResponse(data)
 
 def get_profiles_by_rating(request):
-    profiles = sorted(Profile.objects.all(), key=lambda p: p.rating)
+    profiles = reversed(sorted(Profile.objects.all(), key=lambda p:
+                               p.douchescore))
     data = [object_to_dict(p) for p in profiles]
+
+    return JsonResponse(data)
+
+def get_tags_by_rating(request):
+    tags = reversed(sorted(Tag.objects.all(), key=lambda t: t.rating))
+    data = [object_to_dict(t) for t in tags]
 
     return JsonResponse(data)
 

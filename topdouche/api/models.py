@@ -70,9 +70,11 @@ class Profile(models.Model):
 
     @property
     def douchescore(self):
-        avg_info = self.tags.all().aggregate(models.Avg('rating'))
-        avg_score = avg_info['rating__avg']
-        return avg_score + self.rating
+        #avg_info = self.tags.all().aggregate(models.Avg('rating'))
+        #avg_score = avg_info['rating__avg']
+        #return avg_score + self.rating
+        sum_info = self.tags.all().aggregate(models.Sum('rating'))
+        return sum_info['rating__sum'] or Decimal('0')
 
     def __unicode__(self):
         return u'%s' % self.url
