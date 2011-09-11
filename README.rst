@@ -67,4 +67,7 @@ Supported Profiles
 + Tumblr
 
 
+Dependencies
+=============
 
+:django-taggit: https://github.com/alex/django-taggit

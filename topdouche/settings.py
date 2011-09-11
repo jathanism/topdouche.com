@@ -62,21 +62,16 @@ DEFAULT_FROM_EMAIL = 'hoss@topdouche.com'
 # =========================
 # Database
 # =========================
-# Django 1.1
 """
-DATABASE_ENGINE = 'sqlite3'   # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-#DATABASE_NAME = 'sqlite.db'                    # Or path to database file if using sqlite3.
-DATABASE_NAME = os.path.join(PROJECT_DIR, 'db/sqlite.db')                   # Or path to database file if using sqlite3.
-DATABASE_USER = ''     # Not used with sqlite3.
-DATABASE_PASSWORD = '' # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
-"""
-# Django 1.3
 DATABASES = {
     'default': {
-        #'ENGINE': 'django.db.backends.sqlite3',
-        #'NAME': os.path.join(PROJECT_DIR, 'db/sqlite.db'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(PROJECT_DIR, 'db/default.db'),
+    },
+}
+"""
+DATABASES = {
+    'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'topdouche',
         'USER': 'postgres',
@@ -84,7 +79,7 @@ DATABASES = {
         #'OPTIONS': {
         #    'autocommit': True
         #},
-    }
+    },
 }
 
 # =========================
@@ -128,9 +123,7 @@ SECRET_KEY = 'ra-ph^2+ulp=)0ebq5-%g-y0hkoy^)oy!=q&1sw+0w7@&^3d+&'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-    #'django.template.loaders.filesystem.load_template_source', # (Django 1.1)
     'django.template.loaders.filesystem.Loader', # Django 1.3
-    #'django.template.loaders.app_directories.load_template_source', # (Django 1.1)
     'django.template.loaders.app_directories.Loader', # (Django 1.3)
     #'django.template.loaders.eggs.load_template_source',
 )
@@ -143,7 +136,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'topdouche.urls'
@@ -172,7 +164,6 @@ def settings_context(context):
 TEMPLATE_CONTEXT_PROCESSORS = (
     # Defaults 
     'django.contrib.auth.context_processors.auth', # Adds 'user', 'perms' (Django 1.3)
-    #'django.core.context_processors.auth',  # Adds 'user', 'perms' (Django 1.1)
     'django.core.context_processors.debug', # Adds 'debug', 'sql_queries'
     'django.core.context_processors.i18n',  # Adds 'LANGUAGES'
     'django.core.context_processors.media', # Adds 'MEDIA_URL'
@@ -192,6 +183,8 @@ INSTALLED_APPS = (
     'django.contrib.markup',
     ## custom
     'django.contrib.formtools',
+    'taggit',
+    'api',
 )
 
 STATIC_DOC_ROOT = os.path.join(os.getcwd(), 'site_media')

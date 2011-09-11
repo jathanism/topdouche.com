@@ -22,6 +22,8 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     (r'^admin/', include(admin.site.urls)),
 
+    # API
+    (r'^api/', include('topdouche.api.urls')),
 )
 
 if settings.DEBUG:
