@@ -1,0 +1,45 @@
+WSGIPythonPath /home/jathan/sandbox/topdouche:/home/jathan/sandbox
+#WSGIRestrictEmbedded On 
+WSGIRestrictStdout Off
+
+#<VirtualHost *:80>
+<VirtualHost oobliss.com:80>
+    #ServerName topdouche.com
+    ServerName oobliss.com
+    ServerAlias topdouche
+    ServerAdmin jathan@gmail.com
+    #DocumentRoot /home/jathan/sandbox/fwdb
+    DocumentRoot /var/www
+
+    <Directory /var/www/>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride All
+        Order allow,deny
+        allow from all
+    </Directory>
+
+    <Directory /home/jathan/sandbox/topdouche>
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+    WSGIScriptAlias / /home/jathan/sandbox/topdouche/topdouche.wsgi
+
+    #Alias /robots.txt /usr/local/wsgi/static/robots.txt
+    #Alias /favicon.ico /usr/local/wsgi/static/favicon.ico
+
+    #AliasMatch ^/([^/]*\.css) /usr/local/wsgi/static/styles/$1
+
+    #Alias /media/ /usr/local/wsgi/static/media/
+
+    Alias /static/ /home/jathan/sandbox/topdouche/static/
+    AliasMatch ^/([^/]*\.css) /home/jathan/sandbox/topdouche/static/css/$1
+    Alias /media/ /usr/local/lib/python2.6/dist-packages/django/contrib/admin/media/
+
+    <Directory /home/jathan/sandbox/topdouche/static>
+        Order deny,allow
+        Allow from all
+    </Directory>
+
+</VirtualHost>
+
