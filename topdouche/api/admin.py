@@ -3,8 +3,10 @@ from django.contrib import admin
 from models import Profile, Tag
 
 class ProfileAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(Profile, ProfileAdmin)
+    list_display = ('url', 'rating',)
+
 class TagAdmin(admin.ModelAdmin):
-        pass
+    list_display = ('name', 'slug', 'rating',)
+
+admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Tag, TagAdmin)
