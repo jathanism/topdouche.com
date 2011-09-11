@@ -64,8 +64,8 @@ class Tag(models.Model):
             slug += "_%d" % i
         return slug
 
-    #class Meta:
-    #    ordering = ('name',)
+    class Meta:
+        ordering = ('name',)
 
     def save(self, *args, **kwargs):
         if not self.pk and not self.slug:
