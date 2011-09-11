@@ -1,8 +1,7 @@
 from django.db import models
+from django.template.defaultfilters import slugify as default_slugify
 from django.utils import simplejson as json
 
-from taggit.managers import TaggableManager
-from taggit.models import TaggedItemBase, GenericTaggedItemBase, TagBase
 
 import datetime
 
@@ -15,19 +14,8 @@ RATING_CHOICES = (
 )
 
 """
-class Rating(models.Model):
-    score = models.DecimalField(decimal_places=2, max_digits=4)
-
-    def __unicode__(self):
-        return u'%s' % self.score
-
-    def __repr__(self):
-        return u'<Rating: %s>' % self.score
-
-    class Meta:
-        ordering = ('score',)
-"""
-
+from taggit.managers import TaggableManager
+from taggit.models import TaggedItemBase, GenericTaggedItemBase, TagBase
 class Tag(TagBase):
     description = models.CharField(max_length=140, blank=True)
     rating = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
@@ -38,19 +26,32 @@ class Tag(TagBase):
 
 class TaggedProfile(GenericTaggedItemBase):
     tag = models.ForeignKey(Tag, related_name='tagged_items')
+"""
 
-"""
-class TaggedProfile(TaggedItemBase):
-    content_object = models.ForeignKey('Profile')
-    score = models.DecimalField(decimal_places=2, max_digits=4)
-"""
+class Tag(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.CharField(max_length=50)
+    description = models.CharField(max_length=140, blank=True)
+    rating = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
+    comments = models.CharField(max_length=140, blank=True)
+
+    def __unicode__(self):
+        return u'%s' % self.name
+
+    def __repr__(self):
+        return u'<Tag: %s>' % self.name
+
+    def slugify(self, tag, i=None):
+        slug = default_slugify(tag)
+        if i is not None:
+            slug += "_%d" % i
+        return slug
 
 class Profile(models.Model):
-    url = models.URLField(verify_exists=False)
+    url = models.URLField(verify_exists=True)
     rating = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
-    #rating = models.ForeignKey(Rating)
-    #tags = TaggableManager()
-    tags = TaggableManager(through=TaggedProfile)
+    #tags = TaggableManager(through=TaggedProfile, blank=True)
+    tags = models.ManyToManyField(Tag, related_name='tagged_items')
 
     def __unicode__(self):
         return u'%s' % self.url
