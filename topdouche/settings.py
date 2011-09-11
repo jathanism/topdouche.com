@@ -51,7 +51,7 @@ ADMINS = (
 #  A tuple in the same format as ADMINS that specifies who should get broken-link
 #  notifications when SEND_BROKEN_LINK_EMAILS=True
 MANAGERS = (
-    ('Jathan McCollum', 'jathan.mccollum@teamaol.com'),
+    ('Jathan McCollum', 'jathan@gmail.com'),
 )
 
 #EMAIL_HOST = 'example.com'
@@ -79,7 +79,7 @@ DATABASES = {
         #'OPTIONS': {
         #    'autocommit': True
         #},
-    },
+    }
 }
 
 # =========================

@@ -46,7 +46,7 @@ class TaggedProfile(TaggedItemBase):
 """
 
 class Profile(models.Model):
-    url = models.URLField(verify_exists=True)
+    url = models.URLField(verify_exists=False)
     rating = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
     #rating = models.ForeignKey(Rating)
     #tags = TaggableManager()
