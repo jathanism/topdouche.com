@@ -12,6 +12,8 @@ from django.core.serializers import serialize
 #from django.db.models.query import QuerySet
 
 from decimal import Decimal
+import random
+
 from models import Profile, Tag
 from utils import JsonResponse
 import forms
@@ -43,8 +45,11 @@ def object_to_dict(obj):
     fields['id'] = data[0]['pk']
 
     if hasattr(obj, 'douchescore'):
-        #print 'DOUCHE SCORE: %s ' % obj.douchescore
         fields['douchescore'] = float(obj.douchescore)
+    if hasattr(obj, 'username'):
+        fields['username'] = obj.username
+    if hasattr(obj, 'random_profile'):
+        fields['random_profile'] = obj.random_profile
     
     return fields
 
@@ -83,24 +88,51 @@ def get_profile(request, url=None, profile_id=None):
 
     return JsonResponse(data)
 
-def get_profiles_by_tag(request, tag=None):
+def get_profiles_by_tag(request, tag=None, count=10):
     if tag is None:
         tag = request.REQUEST.get('tag', '')
 
-    profiles = Profile.objects.filter(tags__in=Tag.objects.filter(name=tag))
+    count = request.REQUEST.get('count') or count
+    try:
+        count = int(count)
+    except (ValueError, TypeError):
+        count = 10
+
+    print 'count is: %s' % count
+
+    #profiles = Profile.objects.filter(tags__in=Tag.objects.filter(name=tag))
+    profiles = Profile.objects.filter(tags__in=Tag.objects.filter(name=tag))[:count]
     data = [object_to_dict(p) for p in profiles]
 
     return JsonResponse(data)
 
-def get_profiles_by_rating(request):
-    profiles = reversed(sorted(Profile.objects.all(), key=lambda p:
-                               p.douchescore))
+def get_profiles_by_rating(request, count=10, tag=None):
+    count = request.REQUEST.get('count') or count
+    try:
+        count = int(count)
+    except (ValueError, TypeError):
+        count = 10
+
+    tag = tag or request.REQUEST.get('tag')
+    if tag is None:
+        profiles = reversed(sorted(Profile.objects.all()[:count], key=lambda p: 
+                                   p.douchescore))
+    else:
+        profiles = Profile.objects.filter(tags__in=Tag.objects.filter(name=tag))[:count]
+
     data = [object_to_dict(p) for p in profiles]
 
     return JsonResponse(data)
 
-def get_tags_by_rating(request):
-    tags = reversed(sorted(Tag.objects.all(), key=lambda t: t.rating))
+def get_tags_by_rating(request, count=10):
+    count = request.REQUEST.get('count') or count
+    try:
+        count = int(count)
+    except (ValueError, TypeError):
+        count = 10
+
+    #tags = reversed(sorted(Tag.objects.all(), key=lambda t: t.rating))
+    tags = reversed(sorted(Tag.objects.all()[:count], key=lambda t: t.rating))
     data = [object_to_dict(t) for t in tags]
 
     return JsonResponse(data)

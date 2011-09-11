@@ -4,14 +4,9 @@ from django.utils import simplejson as json
 
 import datetime
 from decimal import Decimal
+import random
 
 # Create your models here.
-
-RATING_CHOICES = (
-    ('tag', 'Tag'),
-    ('profile', 'Profile'),
-    ('url', 'URL'),
-)
 
 """
 from taggit.managers import TaggableManager
@@ -36,6 +31,10 @@ class Tag(models.Model):
                                  blank=True, default=Decimal('0'))
     comments = models.CharField(max_length=140, blank=True)
 
+    @property
+    def random_profile(self):
+        profile = random.choice(self.tagged_items.all())
+        return profile.url
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -75,6 +74,10 @@ class Profile(models.Model):
         #return avg_score + self.rating
         sum_info = self.tags.all().aggregate(models.Sum('rating'))
         return sum_info['rating__sum'] or Decimal('0')
+
+    @property
+    def username(self):
+        return u'%s' % self.url.split('/')[-1]
 
     def __unicode__(self):
         return u'%s' % self.url

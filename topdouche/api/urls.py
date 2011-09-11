@@ -7,8 +7,8 @@ urlpatterns = patterns('api.views',
     (r'^profile/add/$', 'create_profile'),
     (r'^profile/tag/$', 'tag_profile'),
     (r'^profile/(?P<profile_id>[^/]+)?$', 'get_profile'),
+    #(r'^profiles/?P<tag>[^/]+?$', 'get_profiles_by_tag'),
     (r'^profiles/$', 'get_profiles_by_rating'),
-    (r'^profiles/?P<tag>[^/]+?$', 'get_profiles_by_tag'),
 
     # Tag
     (r'^tag/add/$', 'create_tag'),

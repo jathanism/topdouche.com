@@ -33,15 +33,15 @@ Returns the complete profile with comments and summarized rating.
 
 ::
 
-    GET /api/profiles/
+    GET /api/profiles/[?count={count}]
 
-Returns a list of profiles sorted by douchescore (desc.).
+Returns a list of profiles sorted by douchescore (desc.). 'count' is optional (default: 10)
 
 ::
 
-    GET /api/profiles/?tag=comehither
+    GET /api/profiles/?tag=comehither[&count={count}]
 
-Returns profiles tagged with comehither.
+Returns profiles tagged with comehither. 'count' is optional (default: 10)
 
 Tags
 ====
@@ -61,9 +61,9 @@ Returns the average tag rating, tag rating count and all comments associated wit
 
 ::
 
-    GET /api/tags/
+    GET /api/tags/[?count={count}]
 
-Returns a list of tags sorted by rating (desc.)
+Returns a list of tags sorted by rating (desc.) 'count' is optional (default: 10)
 
 Ratings
 =======
