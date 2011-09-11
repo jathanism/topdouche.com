@@ -7,6 +7,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 
+from django.utils import simplejson as json
 from django.core.serializers import serialize
 #from django.db.models.query import QuerySet
 
@@ -27,26 +28,139 @@ def handle_bad_request(err=None):
 
     return JsonResponse({'exception': msg}, 400)
 
+def get_or_none(model, **kwargs):
+    try:
+        return model.objects.get(**kwargs)
+    except model.DoesNotExist:
+        return None
+
+def object_to_dict(obj):
+    """Take an object, return only the fields attribute, plus special sauce?"""
+    json_data = serialize('json', [obj], use_natural_keys=True)
+    data = json.loads(json_data)
+    fields = data[0]['fields']
+    fields['id'] = data[0]['pk']
+
+    return fields
 
 @require_POST
 def create_profile(request):
-    form = forms.ProfileForm(request.POST)
+    json_data = request.raw_post_data
+    log.debug('Got raw post data: %s' % json_data)
+    print 'Got raw post data: %s' % json_data
+    try:
+        data = json.loads(json_data)
+    except ValueError:
+        return handle_bad_request('%s is not valid JSON' % json_data)
+
+    form = forms.ProfileForm(data)
 
     if form.is_valid():
         log.debug('Profile form is valid.')
         new_profile = form.save()
-        cd = form.cleand_data
-
     else:
         log.debug('Profile form is NOT valid.')
         return handle_bad_request(dict(form.errors))
 
-    return HttpResponse(serialize('json', new_profile))
+    return JsonResponse(new_profile.id)
 
-def get_profile(request, url=None):
+def get_profile(request, url=None, profile_id=None):
     if url is None:
         url = request.REQUEST.get('url', '')
-    profile = get_object_or_404(Profile.objects.get(url=url))
+    if profile_id is None:
+        profile_id = request.REQUEST.get('id', '')
 
-    #return HttpResponse(serialize('json', profile))
-    return HttpResponse('Got profile: ' + profile.url)
+    profile = get_or_none(Profile, url=url) or get_or_none(Profile, pk=profile_id)
+    if profile is None:
+        return handle_bad_request('Profile matching query does not exist.')
+
+    data = object_to_dict(profile)
+
+    return JsonResponse(data)
+
+def get_profiles_by_tag(request, tag=None):
+    if tag is None:
+        tag = request.REQUEST.get('tag', '')
+
+    profiles = Profile.objects.filter(tags__in=Tag.objects.filter(name=tag))
+    data = [object_to_dict(p) for p in profiles]
+
+    return JsonResponse(data)
+
+@require_POST
+def tag_profile(request, profile_id=None, url=None, tag=None):
+    json_data = request.raw_post_data
+    #log.debug('Got raw post data: %s' % json_data)
+    print 'Got raw post data: %s' % json_data
+    try:
+        data = json.loads(json_data)
+    except ValueError:
+        return handle_bad_request('%s is not valid JSON' % json_data)
+
+    url = data.get('url', '')
+    profile_id = data.get('profile_id', '')
+    tag = data.get('tag', '')
+
+    """
+    if url is None:
+        url = request.REQUEST.get('url', '')
+    if profile_id is None:
+        profile_id = request.REQUEST.get('id', '')
+    if tag is None:
+        tag = request.REQUEST.get('tag', '')
+    """
+
+    print 'data is: %s' % data
+    profile = get_or_none(Profile, url=url) or get_or_none(Profile, pk=profile_id)
+    if profile is None:
+        return handle_bad_request('Profile matching query does not exist.')
+
+    tag = get_or_none(Tag, name=tag)
+    if tag is None:
+        return handle_bad_request('Tag matching query does not exist.')
+
+    profile.tags.add(tag)
+    profile.save()
+
+    return HttpResponse()
+
+def parse_json(json_data):
+
+@require_POST
+def create_tag(request):
+    json_data = request.raw_post_data
+    log.debug('Got raw post data: %s' % json_data)
+    print 'Got raw post data: %s' % json_data
+    try:
+        data = json.loads(json_data)
+    except ValueError:
+        return handle_bad_request('%s is not valid JSON' % json_data)
+
+    form = forms.TagForm(data)
+
+    if form.is_valid():
+        log.debug('Tag form is valid.')
+        new_tag = form.save()
+    else:
+        log.debug('Tag form is NOT valid.')
+        return handle_bad_request(dict(form.errors))
+
+    return JsonResponse(new_tag.id)
+
+def get_tag(request, name=None):
+    if name is None:
+        name = request.REQUEST.get('name', '')
+
+    tag = get_or_none(Tag, name=name)
+    if tag is None:
+        return handle_bad_request('Tag matching query does not exist.')
+
+    data = object_to_dict(tag)
+
+    return JsonResponse(data)
+
+@require_POST
+def rate_profile(request):
+    pass
+    
+

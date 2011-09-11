@@ -199,6 +199,7 @@ LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 #AUTH_PROFILE_MODULE = 'topdouche.UserProfile'
 
+# =========================
 # Sessions
 # =========================
 # Needed so that the Django session doesn't last longer than the SSO token. We
@@ -215,3 +216,13 @@ SESSION_COOKIE_AGE = 60 * 60 # 60 minutes
 # ".lawrence.com" (note the leading dot!) for cross-domain cookies, or use None
 # for a standard domain cookie.
 #SESSION_COOKIE_DOMAIN = '.topdouche.com'
+
+# =========================
+# Qwerly API
+# =========================
+QWERLY_KEY = 'kh3ccauct35e66246c2tw85p'
+QWERLY_URL = 'http://api.qwerly.com/v1/{method}?api_key={api_key}'
+# Services: twitter, facebook id, facebook username, email, 
+# Docs: http://qwerly.com/documentation/v1
+
+APPEND_SLASH = True

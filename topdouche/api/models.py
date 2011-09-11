@@ -2,7 +2,6 @@ from django.db import models
 from django.template.defaultfilters import slugify as default_slugify
 from django.utils import simplejson as json
 
-
 import datetime
 
 # Create your models here.
@@ -29,10 +28,11 @@ class TaggedProfile(GenericTaggedItemBase):
 """
 
 class Tag(models.Model):
-    name = models.CharField(max_length=50)
-    slug = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.CharField(max_length=50, unique=True, blank=True)
     description = models.CharField(max_length=140, blank=True)
-    rating = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
+    rating = models.DecimalField(decimal_places=2, max_digits=3, null=True,
+                                 blank=True)
     comments = models.CharField(max_length=140, blank=True)
 
     def __unicode__(self):
@@ -41,15 +41,23 @@ class Tag(models.Model):
     def __repr__(self):
         return u'<Tag: %s>' % self.name
 
+    def natural_key(self):
+        return self.name
+
     def slugify(self, tag, i=None):
         slug = default_slugify(tag)
         if i is not None:
             slug += "_%d" % i
         return slug
 
+    def save(self, *args, **kwargs):
+        if not self.pk and not self.slug:
+            self.slug = self.slugify(self.name)
+        super(Tag, self).save()
+
 class Profile(models.Model):
-    url = models.URLField(verify_exists=True)
-    rating = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
+    url = models.URLField(verify_exists=True, unique=True)
+    rating = models.DecimalField(decimal_places=2, max_digits=3, null=True)
     #tags = TaggableManager(through=TaggedProfile, blank=True)
     tags = models.ManyToManyField(Tag, related_name='tagged_items')
 
