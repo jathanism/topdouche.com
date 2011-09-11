@@ -11,6 +11,7 @@ from django.utils import simplejson as json
 from django.core.serializers import serialize
 #from django.db.models.query import QuerySet
 
+from decimal import Decimal
 from models import Profile, Tag
 from utils import JsonResponse
 import forms
@@ -91,7 +92,6 @@ def get_profiles_by_tag(request, tag=None):
 def tag_profile(request, profile_id=None, url=None, tag=None):
     json_data = request.raw_post_data
     #log.debug('Got raw post data: %s' % json_data)
-    print 'Got raw post data: %s' % json_data
     try:
         data = json.loads(json_data)
     except ValueError:
@@ -100,15 +100,6 @@ def tag_profile(request, profile_id=None, url=None, tag=None):
     url = data.get('url', '')
     profile_id = data.get('profile_id', '')
     tag = data.get('tag', '')
-
-    """
-    if url is None:
-        url = request.REQUEST.get('url', '')
-    if profile_id is None:
-        profile_id = request.REQUEST.get('id', '')
-    if tag is None:
-        tag = request.REQUEST.get('tag', '')
-    """
 
     print 'data is: %s' % data
     profile = get_or_none(Profile, url=url) or get_or_none(Profile, pk=profile_id)
@@ -123,8 +114,6 @@ def tag_profile(request, profile_id=None, url=None, tag=None):
     profile.save()
 
     return HttpResponse()
-
-def parse_json(json_data):
 
 @require_POST
 def create_tag(request):
@@ -161,6 +150,50 @@ def get_tag(request, name=None):
 
 @require_POST
 def rate_profile(request):
-    pass
-    
+    json_data = request.raw_post_data
+    log.debug('Got raw post data: %s' % json_data)
+    print 'Got raw post data: %s' % json_data
+    try:
+        data = json.loads(json_data)
+    except ValueError:
+        return handle_bad_request('%s is not valid JSON' % json_data)
 
+    profile_id = data.get('profile_id', '')
+    value = data.get('value', '')
+
+    profile = get_or_none(Profile, url=url) or get_or_none(Profile, pk=profile_id)
+    if profile is None:
+        return handle_bad_request('Profile matching query does not exist.')
+
+    old_rating = profile.rating
+    profile.rating += value
+    profile.save()
+
+    data = dict(old=old_rating, new=profile.rating)
+
+    return JsonResponse(data)
+
+@require_POST
+def rate_tag(request):
+    json_data = request.raw_post_data
+    log.debug('Got raw post data: %s' % json_data)
+    print 'Got raw post data: %s' % json_data
+    try:
+        data = json.loads(json_data)
+    except ValueError:
+        return handle_bad_request('%s is not valid JSON' % json_data)
+
+    name = data.get('name', '')
+    value = data.get('value', '')
+
+    tag = get_or_none(Tag, name=name)
+    if tag is None:
+        return handle_bad_request('Tag matching query does not exist.')
+
+    old_rating = tag.rating
+    tag.rating += Decimal(value)
+    tag.save()
+
+    data = dict(old=str(old_rating), new=str(tag.rating))
+
+    return JsonResponse(data)

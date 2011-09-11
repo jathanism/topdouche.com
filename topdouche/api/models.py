@@ -3,6 +3,7 @@ from django.template.defaultfilters import slugify as default_slugify
 from django.utils import simplejson as json
 
 import datetime
+from decimal import Decimal
 
 # Create your models here.
 
@@ -32,8 +33,9 @@ class Tag(models.Model):
     slug = models.CharField(max_length=50, unique=True, blank=True)
     description = models.CharField(max_length=140, blank=True)
     rating = models.DecimalField(decimal_places=2, max_digits=3, null=True,
-                                 blank=True)
+                                 blank=True, default=Decimal('0'))
     comments = models.CharField(max_length=140, blank=True)
+
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -53,16 +55,33 @@ class Tag(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk and not self.slug:
             self.slug = self.slugify(self.name)
+
+        if not self.rating >= 0 and self.rating <= 10:
+            raise ValueError('Rating must be 1-10')
+
         super(Tag, self).save()
 
 class Profile(models.Model):
     url = models.URLField(verify_exists=True, unique=True)
-    rating = models.DecimalField(decimal_places=2, max_digits=3, null=True)
+    rating = models.DecimalField(decimal_places=2, max_digits=3, null=True,
+                                 default=Decimal('0'))
     #tags = TaggableManager(through=TaggedProfile, blank=True)
     tags = models.ManyToManyField(Tag, related_name='tagged_items')
+
+    @property
+    def douchescore(self):
+        avg_info = self.tags.all().aggregate(models.Avg('rating'))
+        avg_score = avg_info['rating__avg']
+        return avg_score + self.rating
 
     def __unicode__(self):
         return u'%s' % self.url
 
     def __repr__(self):
         return u'<Profile: %s>' % self.url
+
+    def save(self, *args, **kwargs):
+        if not self.rating >= 0 and self.rating <= 10:
+            raise ValueError('Rating must be 1-10')
+        
+        super(Profile, self).save()
