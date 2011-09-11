@@ -33,8 +33,21 @@ class Tag(models.Model):
 
     @property
     def random_profile(self):
-        profile = random.choice(self.tagged_items.all())
-        return profile.url
+        #profile = random.choice(self.tagged_items.all())
+        #return profile.url
+        if not hasattr(self, '_url_list'):
+            self._populate_url_list()
+
+        if not self._url_list:
+            self._populate_url_list()
+
+        random.shuffle(self._url_list)
+        url = self._url_list.pop()
+
+        return url
+
+    def _populate_url_list(self):
+        self._url_list = [p.url for p in self.tagged_items.all()]
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -50,6 +63,9 @@ class Tag(models.Model):
         if i is not None:
             slug += "_%d" % i
         return slug
+
+    #class Meta:
+    #    ordering = ('name',)
 
     def save(self, *args, **kwargs):
         if not self.pk and not self.slug:

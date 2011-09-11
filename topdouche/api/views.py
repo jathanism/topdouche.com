@@ -100,7 +100,6 @@ def get_profiles_by_tag(request, tag=None, count=10):
 
     print 'count is: %s' % count
 
-    #profiles = Profile.objects.filter(tags__in=Tag.objects.filter(name=tag))
     profiles = Profile.objects.filter(tags__in=Tag.objects.filter(name=tag))[:count]
     data = [object_to_dict(p) for p in profiles]
 
@@ -115,24 +114,35 @@ def get_profiles_by_rating(request, count=10, tag=None):
 
     tag = tag or request.REQUEST.get('tag')
     if tag is None:
-        profiles = reversed(sorted(Profile.objects.all()[:count], key=lambda p: 
-                                   p.douchescore))
+        profiles = Profile.objects.all()
     else:
-        profiles = Profile.objects.filter(tags__in=Tag.objects.filter(name=tag))[:count]
+        profiles = Profile.objects.filter(tags__in=Tag.objects.filter(name=tag))
+
+    profiles = sorted(profiles, key=lambda p: p.douchescore, reverse=True)[:count]
 
     data = [object_to_dict(p) for p in profiles]
 
     return JsonResponse(data)
 
-def get_tags_by_rating(request, count=10):
+def get_tags_by_rating(request, count=10, url=None):
+    if url is None:
+        url = request.REQUEST.get('url', '')
+
     count = request.REQUEST.get('count') or count
     try:
         count = int(count)
     except (ValueError, TypeError):
         count = 10
 
-    #tags = reversed(sorted(Tag.objects.all(), key=lambda t: t.rating))
-    tags = reversed(sorted(Tag.objects.all()[:count], key=lambda t: t.rating))
+    #tags = reversed(sorted(Tag.objects.all()[:count], key=lambda t: t.rating))
+    tags = Tag.objects.all()
+
+    if url:
+        tags.exclude(tagged_items__url=url)
+
+    #tags = list(reversed(sorted(tags)))[:count]
+    tags = sorted(tags, key=lambda t: t.rating, reverse=True)[:count]
+
     data = [object_to_dict(t) for t in tags]
 
     return JsonResponse(data)
